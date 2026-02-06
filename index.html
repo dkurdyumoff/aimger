@@ -1548,6 +1548,8 @@
                 </button>
             </div>
             <form id="demoForm" onsubmit="submitForm(event)">
+                <input type="hidden" name="access_key" value="8665f979-b39a-4035-9708-001e15215adc">
+                <input type="hidden" name="subject" value="Новая заявка с Aimger">
                 <div class="form-group">
                     <label>ФИО <span>*</span></label>
                     <input type="text" name="name" required placeholder="Иван Иванов">
@@ -1595,7 +1597,7 @@
             }, 300);
         }
 
-        function submitForm(event) {
+        async function submitForm(event) {
             event.preventDefault();
             const form = event.target;
             const name = form.name.value.trim();
@@ -1606,17 +1608,36 @@
                 return;
             }
 
-            // Here you would typically send the data to your server
-            console.log('Form submitted:', {
-                name: name,
-                phone: phone,
-                email: form.email.value,
-                message: form.message.value
-            });
+            const submitBtn = form.querySelector('.form-submit');
+            submitBtn.textContent = 'Отправка...';
+            submitBtn.disabled = true;
 
-            // Show success message
-            form.style.display = 'none';
-            document.getElementById('formSuccess').style.display = 'block';
+            try {
+                const response = await fetch('https://api.web3forms.com/submit', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        access_key: '8665f979-b39a-4035-9708-001e15215adc',
+                        subject: 'Новая заявка с Aimger',
+                        name: name,
+                        phone: phone,
+                        email: form.email.value,
+                        message: form.message.value
+                    })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    form.style.display = 'none';
+                    document.getElementById('formSuccess').style.display = 'block';
+                } else {
+                    alert('Ошибка отправки. Попробуйте ещё раз.');
+                }
+            } catch (error) {
+                alert('Ошибка сети. Попробуйте ещё раз.');
+            }
+
+            submitBtn.textContent = 'Отправить заявку';
+            submitBtn.disabled = false;
         }
 
         // Close modal on Escape key
