@@ -1600,10 +1600,11 @@
         async function submitForm(event) {
             event.preventDefault();
             const form = event.target;
-            const name = form.name.value.trim();
-            const phone = form.phone.value.trim();
+            const formData = new FormData(form);
+            const nameVal = formData.get('name').trim();
+            const phoneVal = formData.get('phone').trim();
 
-            if (!name || !phone) {
+            if (!nameVal || !phoneVal) {
                 alert('Пожалуйста, заполните обязательные поля');
                 return;
             }
@@ -1619,10 +1620,11 @@
                     body: JSON.stringify({
                         access_key: '8665f979-b39a-4035-9708-001e15215adc',
                         subject: 'Новая заявка с Aimger',
-                        name: name,
-                        phone: phone,
-                        email: form.email.value,
-                        message: form.message.value
+                        from_name: 'Aimger Landing',
+                        name: nameVal,
+                        phone: phoneVal,
+                        email: formData.get('email') || '',
+                        message: formData.get('message') || ''
                     })
                 });
                 const data = await response.json();
@@ -1630,7 +1632,7 @@
                     form.style.display = 'none';
                     document.getElementById('formSuccess').style.display = 'block';
                 } else {
-                    alert('Ошибка отправки. Попробуйте ещё раз.');
+                    alert('Ошибка: ' + (data.message || 'Попробуйте ещё раз.'));
                 }
             } catch (error) {
                 alert('Ошибка сети. Попробуйте ещё раз.');
